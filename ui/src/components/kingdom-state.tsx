@@ -29,12 +29,12 @@ export function KingdomState({ kingCount, queenCount, knightCount }: KingdomStat
           <RewardAvatar
             image="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image.jpg-BjnuJrgZx3Z1bpQgUE4lbpdtFBk9H4.jpeg"
             text={`QUEEN ${queenCount}`}
-            backgroundColor={theme.background.secondary}
+            backgroundColor={theme.background.tertiary}
           />
           <RewardAvatar
             image="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image.jpg-BjnuJrgZx3Z1bpQgUE4lbpdtFBk9H4.jpeg"
             text={`KNIGHT ${knightCount}`}
-            backgroundColor={theme.background.secondary}
+            backgroundColor={theme.background.tertiary}
           />
         </div>
       </div>

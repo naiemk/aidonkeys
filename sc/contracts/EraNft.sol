@@ -86,8 +86,8 @@ contract EraNFT is
         minter = _val;
     }
 
-    function rewardEligibility() external view returns (bool) {
-        return _determineRewardEligibility(msg.sender, _getCurrentEraId(), balanceOf(msg.sender));
+    function rewardEligibility(address user) external view returns (bool) {
+        return _determineRewardEligibility(user, _getCurrentEraId(), balanceOf(user));
     }
 
     function claimReward() external virtual {

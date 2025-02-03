@@ -1,3 +1,5 @@
+'use client'
+
 import { Header } from "@/components/header"
 import { KingdomState } from "@/components/kingdom-state"
 import { NewRewardComponent } from "@/components/new-reward-component"
@@ -7,14 +9,43 @@ import { ContentWithImage } from "@/components/content-with-image"
 import Link from "next/link"
 import theme from "@/lib/theme"
 import Image from "next/image"
+import { useConnectWalletSimple, useContracts } from "web3-react-ui"
+import { DoubleBorder } from "@/components/double-border"
+import { useConfig, useGeneralInfo } from "@/utils/conf"
+import { useEffect, useState } from "react"
+import { loadMyNfts } from "@/utils/nftload"
 
 export default function Dashboard() {
+  const { chainId, address } = useConnectWalletSimple();
+  const { validChain, nftContract } = useConfig(chainId);
+  const generalInfo = useGeneralInfo();
+  const { callMethod } = useContracts();
+  const [kings, setKings] = useState<number>(0);
+  const [queens, setQueens] = useState<number>(0);
+  const [knights, setKnights] = useState<number>(0);
+
+  useEffect(() => {
+    // Load my collection
+    const loadCollection = async () => {
+      if (chainId && address && generalInfo.balance && nftContract) {
+        const { rewards } = await loadMyNfts(chainId, nftContract, address, generalInfo.balance, callMethod);
+        setKings(rewards['1'].length || 0);
+        setQueens(rewards['2'].length || 0);
+        setKnights(rewards['3'].length || 0);
+      }
+    };
+    loadCollection();
+  }, [chainId, address, callMethod, generalInfo.balance, nftContract]);
+
   return (
     <div className="min-h-screen flex flex-col items-center">
       <Header />
       <main className="flex-grow p-4 space-y-6 w-full max-w-[950px]">
-          <KingdomState kingCount={3} queenCount={2} knightCount={10} />
-          <NewRewardComponent />
+        {!validChain && <DoubleBorder><div>Invalid chain. Connect to a supported chain.</div></DoubleBorder>}
+        {generalInfo.loading && <div>Loading...</div>}
+        {generalInfo.error && <DoubleBorder><div className="text-red-500 pb-16">Error: {generalInfo.error}</div></DoubleBorder>}
+          <KingdomState kingCount={kings} queenCount={queens} knightCount={knights} />
+        {generalInfo.eligibleForRewards && <NewRewardComponent />}
 
         <EraSummary />
 

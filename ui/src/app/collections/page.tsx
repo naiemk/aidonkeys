@@ -1,47 +1,103 @@
 "use client"
-
-import { useState } from "react"
 import { Header } from "@/components/header"
-import { Button } from "@/components/ui/button"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { EraCollection } from "@/components/era-collection"
+import { MyCollection } from "@/components/my-collection"
 import theme from "@/lib/theme"
-
-// Mock data - replace with actual data fetching in a real application
-const mockCollections = {
-  "Cyberpunk 2077": Array.from({ length: 50 }, (_, i) => ({ id: `cp-${i + 1}`, imageUrl: "/placeholder.svg" })),
-  "Space Odyssey": Array.from({ length: 40 }, (_, i) => ({ id: `so-${i + 1}`, imageUrl: "/placeholder.svg" })),
-  "Steampunk Revolution": Array.from({ length: 30 }, (_, i) => ({ id: `sr-${i + 1}`, imageUrl: "/placeholder.svg" })),
-}
+import { useState, useEffect } from "react"
+import { ABI, Era, NftMetadata, useConfig, useGeneralInfo } from "@/utils/conf"
+import { GlobalCache, useConnectWalletSimple, useContracts } from "web3-react-ui"
+import { loadMyNfts } from "@/utils/nftload"
 
 export default function CollectionsPage() {
-  const [showOwned, setShowOwned] = useState(false)
+  const [value, setValue] = useState("my-collection");
+  const [eras, setEras] = useState<Era[]>([]);
+  const { chainId, address } = useConnectWalletSimple();
+  const { nftContract } = useConfig(chainId);
+  const [myCollection, setMyCollection] = useState<NftMetadata[]>([]);
+  const { callMethod } = useContracts();
+  const generalInfo = useGeneralInfo();
+
+  useEffect(() => {
+    // Load my collection
+    const loadCollection = async () => {
+      if (chainId && address && generalInfo.balance && nftContract) {
+        const { nfts, } = await loadMyNfts(chainId, nftContract, address, generalInfo.balance, callMethod);
+        setMyCollection(nfts);
+      }
+    };
+    loadCollection();
+  }, [chainId, address, callMethod, generalInfo.balance, nftContract]);
+
+  useEffect(() => {
+    // Load eras
+    const loadCollection = async () => {
+      if (chainId && nftContract && generalInfo.currentEra.id) {
+        const newEras: Era[] = [];
+        for (let i = 1; i <= generalInfo.currentEra.id; i++) {
+          const theEra: Era | null = await GlobalCache.getAsync<any>(`CALL${chainId}-${nftContract}-ABI.eras-${i}-Eras`,
+            async () => {
+              const era = await callMethod(chainId, nftContract, ABI.eras, [i]);
+              return ({
+                id: era.eraId.toString(),
+                title: era.title,
+                startPrice: era.startPrice.toString(),
+                startTimestamp: era.startTimestamp.toString(),
+                }) as Era; });
+          if (!!theEra?.id) {
+            const totalMinted = await callMethod(chainId, nftContract, ABI.getMintedTokensByEraLength, [theEra.id]);
+            theEra.totalMinted = totalMinted;
+            newEras.push(theEra);
+          }
+        }
+        setEras(newEras);
+      }
+    };
+    loadCollection();
+  }, [chainId, callMethod, nftContract, generalInfo.currentEra.id]);
+
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow p-4 w-full max-w-[950px] mx-auto">
-        <Button
-          variant="outline"
-          size="lg"
-          className="mb-4"
-          style={{
-            backgroundColor: theme.button.background,
-            color: theme.text.primary,
-            border: `2px solid ${theme.button.border}`,
-            fontSize: "1rem",
-            padding: "0.75rem 1.5rem",
-          }}
-          onClick={() => setShowOwned(!showOwned)}
-        >
-          {showOwned ? "✓ " : ""}Show only my NFTs
-        </Button>
-        <div className="space-y-6">
-          {Object.entries(mockCollections).map(([era, nfts]) => (
-            <EraCollection key={era} era={era} nfts={nfts} />
-          ))}
-        </div>
+        <Tabs defaultValue="my-collection" className="w-full" onValueChange={setValue}>
+          <TabsList className="grid w-full grid-cols-2 mb-4 bg-transparent p-0">
+            <TabsTrigger
+              value="my-collection"
+              className={`py-2 px-4 text-lg transition-all border-4 border-solid border-r-0 rounded-none first:rounded-l-sm data-[state=active]:bg-[${theme.button.background}] data-[state=active]:text-[${theme.button.text}]`}
+              style={{
+                borderColor: theme.border.default,
+                color: theme.button.text,
+                ...(value === 'my-collection' ? { backgroundColor: theme.button.background } : {})
+              }}
+            >
+              My Collection
+            </TabsTrigger>
+            <TabsTrigger
+              value="full-collection"
+              className={`py-2 px-4 text-lg transition-all border-4 border-solid rounded-none last:rounded-r-sm data-[state=active]:bg-[${theme.button.background}] data-[state=active]:text-[${theme.button.text}]`}
+              style={{
+                borderColor: theme.border.default,
+                color: theme.button.text,
+                ...(value === 'full-collection' ? { backgroundColor: theme.button.background } : {})
+              }}
+            >
+              Full Collection
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="my-collection">
+            <MyCollection nfts={myCollection} />
+          </TabsContent>
+          <TabsContent value="full-collection">
+            <div className="space-y-6">
+              {eras.reverse().map(era => (
+                <EraCollection key={era.id} era={era} eraId={era.id.toString()} />
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   )
 }
-

@@ -14,6 +14,7 @@ interface TransactionModalProps {
   onClose: () => void
   transactionId: string
   chainId: string
+  message: string
 }
 
 export function TransactionModal({
@@ -21,6 +22,7 @@ export function TransactionModal({
   onClose,
   transactionId,
   chainId,
+  message,
 }: TransactionModalProps) {
   // const { theme } = useTheme()
 
@@ -35,7 +37,7 @@ export function TransactionModal({
       ">
         <div className="flex flex-col h-full max-h-full overflow-hidden">
           <div className="flex-shrink-0 flex justify-between items-center p-4 border-b border-border">
-            <h2 className="text-xl font-bold">Following transaction was submitted</h2>
+            <h2 className="text-xl font-bold">{message}</h2>
           </div>
 
           <Tabs defaultValue="wallet" className="flex-grow flex flex-col min-h-0">

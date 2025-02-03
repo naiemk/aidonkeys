@@ -46,9 +46,9 @@ export default function RootLayout({
             icon: "https://ferrum.network/wp-content/uploads/2022/07/cropped-ferrum-favicon-1-32x32.png",
             description: "AI Donkey Kingdom",
           })}
-          providersConfigUrl="https://raw.githubusercontent.com/naiemk/qp-bridge/refs/heads/main/resources/configs/network-list.json"
+          providersConfigUrl="https://raw.githubusercontent.com/naiemk/aidonkeys/refs/heads/main/ui/src/resources/configs/network-list.json"
           configUrlMaps={{
-            "APP": "https://raw.githubusercontent.com/naiemk/qp-bridge/refs/heads/main/resources/configs/config.json"
+            "APP": "https://raw.githubusercontent.com/naiemk/aidonkeys/refs/heads/main/ui/src/resources/configs/config.json"
           }}
           onError={(error) => setError(error)}
           onConfigLoaded={(k, v) => {

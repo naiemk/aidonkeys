@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import theme from "@/lib/theme"
+import Web3Connect from "./web3/web3-connect"
 
 export function Header() {
   return (
@@ -10,9 +11,9 @@ export function Header() {
         style={{ backgroundColor: theme.background.secondary }}
       >
         <Link href="/" className="text-2xl font-bold" style={{ color: theme.text.primary }}>
-          AI NFT Gen
+          AI Donkeys - Build Your Donkey Kingdom
         </Link>
-        <Button>Connect Wallet</Button>
+        <Web3Connect />
       </header>
     </div>
   )

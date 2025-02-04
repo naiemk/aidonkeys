@@ -4,5 +4,10 @@
   ],
   "nftContracts": {
     "97": "0xB54f031008cc7de9192EBf14B4a4806A5165bF44"
+  },
+  "eraImages": {
+    "1": "https://i.ibb.co/7xg46vnR/era1-8b.webp",
+    "2": "https://i.ibb.co/j90xw37C/era2.webp",
+    "3": "https://i.ibb.co/q3376ZNh/era3.webp"
   }
 }

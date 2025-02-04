@@ -1,6 +1,9 @@
 import theme from "@/lib/theme"
 import { DoubleBorder } from "./double-border"
 import { RewardAvatar } from "./reward-avatar"
+import king from '@/img/era3-king.webp'
+import queen from '@/img/era3-queen.webp'
+import knight from '@/img/era3-knight.webp'
 
 interface KingdomStateProps {
   kingCount: number
@@ -22,17 +25,17 @@ export function KingdomState({ kingCount, queenCount, knightCount }: KingdomStat
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <RewardAvatar
-            image="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image.jpg-BjnuJrgZx3Z1bpQgUE4lbpdtFBk9H4.jpeg"
+            image={king.src}
             text={`KING ${kingCount}`}
             backgroundColor={theme.background.tertiary}
           />
           <RewardAvatar
-            image="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image.jpg-BjnuJrgZx3Z1bpQgUE4lbpdtFBk9H4.jpeg"
+            image={queen.src}
             text={`QUEEN ${queenCount}`}
             backgroundColor={theme.background.tertiary}
           />
           <RewardAvatar
-            image="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image.jpg-BjnuJrgZx3Z1bpQgUE4lbpdtFBk9H4.jpeg"
+            image={knight.src}
             text={`KNIGHT ${knightCount}`}
             backgroundColor={theme.background.tertiary}
           />

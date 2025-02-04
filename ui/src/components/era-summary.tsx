@@ -2,8 +2,9 @@ import Image from "next/image"
 import { DoubleBorder } from "./double-border"
 import theme from "@/lib/theme"
 import { useConfig, useGeneralInfo } from "@/utils/conf";
+import era3 from '@/img/era3.webp'
 
-const DEFAULT_ERA_IMAGE = 'https://hebbkx1anhila5yf.public.blob.vercel-storage.com/DALL%C2%B7E%202025-01-13%2003.10.59%20-%20A%20playful%20and%20artistic%20abstract%20digital%20landscape%20for%20an%20AI%20NFT%20website,%20incorporating%208-bit%20graphics%20and%20monkey%20degen%20elements.%20The%20background%20should-NXkxOEv45XTqPiy65iOzGQyT9uCocf.webp';
+const DEFAULT_ERA_IMAGE = era3.src
 
 export function EraSummary() {
   const { eraImages } = useConfig();
@@ -17,7 +18,7 @@ export function EraSummary() {
         }}
         className="flex flex-col"
       >
-        <div className="relative w-full aspect-[2/1]">
+        <div className="relative w-full aspect-[3/2]">
           <Image
             src={eraImages?.[generalInfo.currentEra.id] || DEFAULT_ERA_IMAGE}
             alt="Current Era Theme"

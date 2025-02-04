@@ -3,11 +3,13 @@ import { DoubleBorder } from "./double-border"
 import theme from "@/lib/theme"
 import { useConfig, useGeneralInfo } from "@/utils/conf";
 import era3 from '@/img/era3.webp'
+import { useConnectWalletSimple } from "web3-react-ui";
 
 const DEFAULT_ERA_IMAGE = era3.src
 
 export function EraSummary() {
-  const { eraImages } = useConfig();
+  const { chainId } = useConnectWalletSimple();
+  const { eraImages, nftContract } = useConfig(chainId);
   const generalInfo = useGeneralInfo();
 
   return (
@@ -31,7 +33,8 @@ export function EraSummary() {
         <div className="p-6 space-y-4">
           {/* Theme and Mints Info */}
           <div className="text-lg font-bold" style={{ color: theme.text.primary }}>
-            {generalInfo.currentEra.title} - NFTs Minted: {generalInfo.currentEra.totalMinted}
+            {generalInfo.currentEra.title} - NFTs Minted: {generalInfo.currentEra.totalMinted} <br/>
+            <span className="text-sm">NFT Contract: {nftContract} (chain #{chainId})</span>
           </div>
 
           {/* Price and Countdown */}

@@ -139,6 +139,7 @@ async function createDalleImage(prompt: string, width: number, height: number): 
   const sizeString = `${width}x${height}` as any;
   
   const response = await openai.images.generate({
+    model: "dall-e-3",
     prompt,
     n: 1,
     size: sizeString
@@ -351,11 +352,16 @@ async function mainLoop(): Promise<void> {
 //   console.log(res);
 // });
 
+const prompt = "8-bit pixel art of a heroic donkey clad in shining armor. Incorporate metallic plating on the armor, with a few decorative accents that suggest valor and status. Use a vibrant color palette that can blend into any thematic background. Emphasize clean pixelation and a high-value reward look. Keep the donkey knight as the central focus, without additional characters. Beautiful but simple background. Focus on serious angry face. focus on strength. Armor and weaponry shown.";
+createDalleImage(prompt, 1024, 1024).then((res) => {
+  console.log(res);
+});
+
 // ------ Entry Point ------ //
-(async () => {
-  if (process.argv.find((arg) => arg === "once")) {
-    await runOnce(config.execution[0]);
-  } else {
-    await mainLoop();
-  }
-})();
+// (async () => {
+//   if (process.argv.find((arg) => arg === "once")) {
+//     await runOnce(config.execution[0]);
+//   } else {
+//     await mainLoop();
+//   }
+// })();

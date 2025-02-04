@@ -24,6 +24,9 @@ abstract contract RewardBase is Ownable {
         view
         returns (bool)
     {
+        if (balanceOf == 0) {
+            return false;
+        }
         uint256 rand = uint256(keccak256(abi.encodePacked(user, eraId, balanceOf, userRewards[user]))) % 10000;
         return (rand < REWARD_CHANCE_BPS);
     }

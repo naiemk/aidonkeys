@@ -347,21 +347,11 @@ async function mainLoop(): Promise<void> {
   }
 }
 
-// const IM_URL = "https://oaidalleapiprodscus.blob.core.windows.net/private/org-ioCcRDMl9Kr8lh1UpqJYop2y/user-q3YwHbOmj7GgvitBRcnkEb1q/img-Q6cFwTvOUWR5AJrpyabRjMKG.png?st=2025-01-31T22%3A20%3A35Z&se=2025-02-01T00%3A20%3A35Z&sp=r&sv=2024-08-04&sr=b&rscd=inline&rsct=image/png&skoid=d505667d-d6c1-4a0a-bac7-5c84a87759f8&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2025-01-31T19%3A20%3A04Z&ske=2025-02-01T19%3A20%3A04Z&sks=b&skv=2024-08-04&sig=giWIyjN2d%2BDoJvInX3qKPSKr0cL08ACNoWOZGSBOpfU%3D";
-// uploadImageToPinata(IM_URL).then((res) => {
-//   console.log(res);
-// });
-
-const prompt = "8-bit pixel art of a heroic donkey clad in shining armor. Incorporate metallic plating on the armor, with a few decorative accents that suggest valor and status. Use a vibrant color palette that can blend into any thematic background. Emphasize clean pixelation and a high-value reward look. Keep the donkey knight as the central focus, without additional characters. Beautiful but simple background. Focus on serious angry face. focus on strength. Armor and weaponry shown.";
-createDalleImage(prompt, 1024, 1024).then((res) => {
-  console.log(res);
-});
-
 // ------ Entry Point ------ //
-// (async () => {
-//   if (process.argv.find((arg) => arg === "once")) {
-//     await runOnce(config.execution[0]);
-//   } else {
-//     await mainLoop();
-//   }
-// })();
+(async () => {
+  if (process.argv.find((arg) => arg === "once")) {
+    await runOnce(config.execution[0]);
+  } else {
+    await mainLoop();
+  }
+})();

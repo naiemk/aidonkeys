@@ -121,7 +121,7 @@ async function generatePromptForPurchase(purchase: Purchase): Promise<string> {
     return eraPromptTemplate.replace("<<>>", purchase.text);
   } else {
     // Use special prompt based on reward
-    switch (purchase.reward) {
+    switch (Number(purchase.reward)) {
       case Reward.KING:
         return config.specialPrompts.king;
       case Reward.QUEEN:
@@ -290,7 +290,7 @@ async function processPurchases(fromPurchaseId: number, toPurchaseId: number, pu
     console.log('purchaseIds', purchaseIds);
     console.log('tokenURIs', tokenURIs);
     const txResponse = await contract.connect(wallet).multipleMintTokenForPurchase(
-      fromPurchaseId, toPurchaseId, tokenURIs, {gasLimit: 1000000});
+      fromPurchaseId, toPurchaseId, tokenURIs, {gasLimit: 7000000});
     console.log("Waiting for transaction receipt...", txResponse.hash);
     const receipt = await txResponse.wait();
     console.log(`Batch mint succeeded in block #${receipt.blockNumber}. Tx Hash: ${receipt.transactionHash}`);

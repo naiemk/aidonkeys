@@ -4,18 +4,21 @@ import { Card, CardContent } from "@/components/ui/card"
 import { DoubleBorder } from "@/components/double-border"
 import theme from "@/lib/theme"
 import { NftMetadata } from "@/utils/conf"
+import { LoadingButton } from "./ui/loading-button"
 
 interface MyCollectionProps {
   nfts: NftMetadata[]
+  loading: boolean
 }
 
-export function MyCollection({ nfts }: MyCollectionProps) {
+export function MyCollection({ nfts, loading }: MyCollectionProps) {
   return (
     <DoubleBorder>
       <div style={{ backgroundColor: theme.card.background }} className="p-4">
         <h2 style={{ color: theme.text.primary }} className="text-2xl font-bold mb-4">
           My Collection
         </h2>
+        {loading && <div className="flex justify-center items-center h-full"><LoadingButton size="lg" loading={true} /></div>}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {nfts.map((nft, i) => (
             <Link href={`/nft?id=${nft.id}`} key={i}>

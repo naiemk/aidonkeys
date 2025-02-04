@@ -99,6 +99,7 @@ contract EraNFT is
         if (r == Reward.NONE) {
             revert("No reward type");
         }
+        userRewards[msg.sender]++;
         _createRewardPurcase(msg.sender, eraId, r);
     }
 

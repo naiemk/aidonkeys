@@ -6,8 +6,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { DoubleBorder } from "@/components/double-border"
 import theme from "@/lib/theme"
 import { useConnectWalletSimple, useContracts } from "web3-react-ui"
-import { ABI, Era, NftMetadata, useConfig } from "@/utils/conf"
+import { Era, NftMetadata, useConfig } from "@/utils/conf"
 import { loadEraNfts } from "@/utils/nftload"
+import { LoadingButton } from "./ui/loading-button"
 
 const PAGE_SIZE = 16;
 
@@ -17,22 +18,28 @@ interface EraCollectionProps {
 }
 
 export function EraCollection({ eraId, era }: EraCollectionProps) {
-  const { chainId, address } = useConnectWalletSimple();
+  const { chainId } = useConnectWalletSimple();
+  const [loading, setLoading] = useState(false);
   const { nftContract } = useConfig(chainId);
   const [collection, setCollection] = useState<NftMetadata[]>([]);
   const [eraPage, setEraPage] = useState(0);
   const { callMethod } = useContracts();
 
   const loadMore = () => {
+    loadEra(eraPage + 1);
     setEraPage(eraPage + 1);
-    loadEra();
   }
 
-  const loadEra = async () => {
+  const loadEra = async (page?: number) => {
     if (chainId && nftContract && eraId && callMethod) {
-      console.log("Loading era", eraId);
-      const nfts = await loadEraNfts(chainId, nftContract, Number(eraId), eraPage, PAGE_SIZE, callMethod);
-      setCollection([...collection, ...nfts]);
+      console.log("Loading era", eraId, eraPage);
+      setLoading(true);
+      try {
+        const nfts = await loadEraNfts(chainId, nftContract, Number(eraId), page || eraPage, PAGE_SIZE, callMethod);
+        setCollection([...collection, ...nfts]);
+      } finally {
+        setLoading(false);
+      }
     }
   }
 
@@ -44,6 +51,7 @@ export function EraCollection({ eraId, era }: EraCollectionProps) {
   return (
     <DoubleBorder>
       <div style={{ backgroundColor: theme.card.background }} className="p-4">
+        {loading && <div className="flex justify-center items-center h-full"><LoadingButton size="lg" loading={true} /></div>}
         <h2 style={{ color: theme.text.primary }} className="text-2xl font-bold mb-4">
           {eraId} - {era.title} ({era.totalMinted} minted)
         </h2>

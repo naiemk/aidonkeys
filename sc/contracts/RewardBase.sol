@@ -6,6 +6,7 @@ abstract contract RewardBase is Ownable {
     enum Reward { NONE, KING, QUEEN, KNIGHT }
 
     mapping(Reward => string) public rewardURIs;
+    mapping(address => uint64) public userRewards;
     uint256 public REWARD_CHANCE_BPS = 1000;
     uint256 public KING_BPS = 200;
     uint256 public QUEEN_BPS = 1000;
@@ -23,7 +24,7 @@ abstract contract RewardBase is Ownable {
         view
         returns (bool)
     {
-        uint256 rand = uint256(keccak256(abi.encodePacked(user, eraId, balanceOf))) % 10000;
+        uint256 rand = uint256(keccak256(abi.encodePacked(user, eraId, balanceOf, userRewards[user]))) % 10000;
         return (rand < REWARD_CHANCE_BPS);
     }
 

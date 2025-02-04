@@ -55,7 +55,7 @@ export default function MintPage() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow p-4 space-y-6 w-full max-w-[950px] mx-auto">
-        <ThemeComponent currentTheme="Cyberpunk 2077" />
+        <ThemeComponent currentTheme={generalInfo.currentEra.title} />
 
         <DoubleBorder>
           <div

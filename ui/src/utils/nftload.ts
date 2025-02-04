@@ -30,9 +30,9 @@ export async function loadMyNfts(
     console.log("Token ID", i, tokenId);
     const token = await loadToken(chainId, nftContract, tokenId, callMethod);
     newCollection.push(token);
-    if (token.purchaseInfo?.reward) {
-      rewards[token.purchaseInfo.reward.toString()] = rewards[token.purchaseInfo.reward.toString()] || [];
-      rewards[token.purchaseInfo.reward.toString()].push(token);
+    if (token.purchaseInfo?.reward !== 'NONE') {
+      rewards[token.purchaseInfo.reward] = rewards[token.purchaseInfo.reward] || [];
+      rewards[token.purchaseInfo.reward].push(token);
     }
   }
   return { nfts: newCollection, rewards };

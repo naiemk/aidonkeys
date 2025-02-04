@@ -14,6 +14,7 @@ import { DoubleBorder } from "@/components/double-border"
 import { useConfig, useGeneralInfo } from "@/utils/conf"
 import { useEffect, useState } from "react"
 import { loadMyNfts } from "@/utils/nftload"
+import { LoadingButton } from "@/components/ui/loading-button"
 
 export default function Dashboard() {
   const { chainId, address } = useConnectWalletSimple();
@@ -23,15 +24,22 @@ export default function Dashboard() {
   const [kings, setKings] = useState<number>(0);
   const [queens, setQueens] = useState<number>(0);
   const [knights, setKnights] = useState<number>(0);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     // Load my collection
     const loadCollection = async () => {
       if (chainId && address && generalInfo.balance && nftContract) {
-        const { rewards } = await loadMyNfts(chainId, nftContract, address, generalInfo.balance, callMethod);
-        setKings(rewards['1'].length || 0);
-        setQueens(rewards['2'].length || 0);
-        setKnights(rewards['3'].length || 0);
+        setLoading(true);
+        try {
+          const { rewards } = await loadMyNfts(chainId, nftContract, address, generalInfo.balance, callMethod);
+          console.log('rewards', rewards);
+          setKings(rewards['KING']?.length || 0);
+          setQueens(rewards['QUEEN']?.length || 0);
+          setKnights(rewards['KNIGHT']?.length || 0);
+        } finally {
+          setLoading(false);
+        }
       }
     };
     loadCollection();
@@ -42,6 +50,7 @@ export default function Dashboard() {
       <Header />
       <main className="flex-grow p-4 space-y-6 w-full max-w-[950px]">
         {!validChain && <DoubleBorder><div>Invalid chain. Connect to a supported chain.</div></DoubleBorder>}
+        {loading && <div className="flex justify-center items-center h-full"><LoadingButton size="lg" loading={true} /></div>}
         {generalInfo.loading && <div>Loading...</div>}
         {generalInfo.error && <DoubleBorder><div className="text-red-500 pb-16">Error: {generalInfo.error}</div></DoubleBorder>}
           <KingdomState kingCount={kings} queenCount={queens} knightCount={knights} />

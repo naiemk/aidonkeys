@@ -41,16 +41,16 @@ export const ABI = {
   totalSupply: 'function totalSupply() external view returns (uint256)',
   balanceOf: 'function balanceOf(address user) external view returns (uint256)',
   getCurrentEraId: 'function getCurrentEraId() external view returns (uint64)',
-  // currentPriceForEraId: 'function currentPriceForEraId(uint64 eraId) external view returns (uint256)',
-  currentPriceForEra: 'function currentPriceForEra(tuple(uint64  eraId, string  title, uint256 startPrice, uint256 startTimestamp)) external view returns (uint256)',
+  currentPriceForEraId: 'function currentPriceForEraId(uint64 eraId) external view returns (uint256)',
   eras: 'function eras(uint eraId) external view returns (uint64  eraId, string  title, uint256 startPrice, uint256 startTimestamp)',
-  rewardEligibility: 'function rewardEligibility() external view returns (bool)',
+  rewardEligibility: 'function rewardEligibility(address user) external view returns (bool)',
   tokenURI: 'function tokenURI(uint256 tokenId) external view returns (string memory)',
   tokenByIndex: 'function tokenByIndex(uint256 index) external view returns (uint256)',
   tokenOfOwnerByIndex: 'function tokenOfOwnerByIndex(address owner, uint256 index) external view returns (uint256)',
   getMintedTokensByEraLength: 'function getMintedTokensByEraLength(uint64 _eraId) external view returns (uint256)',
   getMintedTokensByEra: 'function getMintedTokensByEra(uint64 _eraId, uint256 startIndex, uint256 endIndex) external view returns (uint256[] memory)',
   purchaseMint: 'function purchaseMint(string memory _text, string memory _telegramId) external payable',
+  claimReward: 'function claimReward() external',
 }
 
 export interface GeneralInfo {
@@ -132,17 +132,14 @@ export function useGeneralInfo(): GeneralInfo {
         const balance = await callMethod(chainId, nftContract, ABI.balanceOf, [address]);
         newInfo.balance = balance;
 
-        const mintPrice = await callMethod(chainId, nftContract, ABI.currentPriceForEra, [
-          [currentEra[0], currentEra[1], currentEra[2], currentEra[3]]
-        ]);
+        const mintPrice = await callMethod(chainId, nftContract, ABI.currentPriceForEraId, [currentEraId]);
         // Round up to the 4 decimal place
         const mintPriceRoundUp = ((mintPrice / 10n**14n) + 1n) * 10n**14n;
         newInfo.mintPrice = mintPriceRoundUp.toString();
         newInfo.mintPriceDisplay = ethers.formatEther(mintPriceRoundUp);
-        console.log('MINT PRICE', mintPrice, generalInfo.mintPriceDisplay);
 
-        const eligibleForRewards = await callMethod(chainId, nftContract, ABI.rewardEligibility, []);
-        console.log('ELIGIBLE FOR REWARDS', eligibleForRewards);
+        const eligibleForRewards = await callMethod(chainId, nftContract, ABI.rewardEligibility, [address]);
+        console.log('Eligible for rewards', eligibleForRewards);
         newInfo.eligibleForRewards = eligibleForRewards;
 
       } catch (error) {

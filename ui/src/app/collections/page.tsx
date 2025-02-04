@@ -8,6 +8,7 @@ import { useState, useEffect } from "react"
 import { ABI, Era, NftMetadata, useConfig, useGeneralInfo } from "@/utils/conf"
 import { GlobalCache, useConnectWalletSimple, useContracts } from "web3-react-ui"
 import { loadMyNfts } from "@/utils/nftload"
+import { LoadingButton } from '@/components/ui/loading-button';
 
 export default function CollectionsPage() {
   const [value, setValue] = useState("my-collection");
@@ -17,13 +18,20 @@ export default function CollectionsPage() {
   const [myCollection, setMyCollection] = useState<NftMetadata[]>([]);
   const { callMethod } = useContracts();
   const generalInfo = useGeneralInfo();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     // Load my collection
     const loadCollection = async () => {
       if (chainId && address && generalInfo.balance && nftContract) {
-        const { nfts, } = await loadMyNfts(chainId, nftContract, address, generalInfo.balance, callMethod);
-        setMyCollection(nfts);
+        setLoading(true);
+        try {
+          const { nfts, } = await loadMyNfts(chainId, nftContract, address, generalInfo.balance, callMethod);
+          console.log('nfts loaded', nfts);
+          setMyCollection(nfts);
+        } finally {
+          setLoading(false);
+        }
       }
     };
     loadCollection();
@@ -33,6 +41,7 @@ export default function CollectionsPage() {
     // Load eras
     const loadCollection = async () => {
       if (chainId && nftContract && generalInfo.currentEra.id) {
+        try {
         const newEras: Era[] = [];
         for (let i = 1; i <= generalInfo.currentEra.id; i++) {
           const theEra: Era | null = await GlobalCache.getAsync<any>(`CALL${chainId}-${nftContract}-ABI.eras-${i}-Eras`,
@@ -51,6 +60,8 @@ export default function CollectionsPage() {
           }
         }
         setEras(newEras);
+        } finally {
+        }
       }
     };
     loadCollection();
@@ -87,7 +98,8 @@ export default function CollectionsPage() {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="my-collection">
-            <MyCollection nfts={myCollection} />
+          {!loading && <div className="flex justify-center items-center h-full"><LoadingButton size="large" /></div>}
+            <MyCollection nfts={myCollection} loading={loading}/>
           </TabsContent>
           <TabsContent value="full-collection">
             <div className="space-y-6">

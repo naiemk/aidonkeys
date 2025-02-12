@@ -1,5 +1,4 @@
 'use client'
-import type { Metadata } from "next"
 import { Syne_Mono } from "next/font/google"
 import "./globals.css";
 import { AppWrapper } from 'web3-react-ui';

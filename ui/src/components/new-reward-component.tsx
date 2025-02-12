@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import theme from "@/lib/theme"
 import { DoubleBorder } from "./double-border"
 import { useConnectWalletSimple, useContracts } from "web3-react-ui";
-import { ABI, useConfig, useGeneralInfo } from "@/utils/conf";
+import { ABI, useConfig } from "@/utils/conf";
 import { useEffect, useState } from "react";
 import { TransactionModal } from "./web3/transaction-modal";
 

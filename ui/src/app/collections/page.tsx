@@ -8,7 +8,6 @@ import { useState, useEffect } from "react"
 import { ABI, Era, NftMetadata, useConfig, useGeneralInfo } from "@/utils/conf"
 import { GlobalCache, useConnectWalletSimple, useContracts } from "web3-react-ui"
 import { loadMyNfts } from "@/utils/nftload"
-import { LoadingButton } from '@/components/ui/loading-button';
 
 export default function CollectionsPage() {
   const [value, setValue] = useState("my-collection");
@@ -44,7 +43,7 @@ export default function CollectionsPage() {
         try {
         const newEras: Era[] = [];
         for (let i = 1; i <= generalInfo.currentEra.id; i++) {
-          const theEra: Era | null = await GlobalCache.getAsync<any>(`CALL${chainId}-${nftContract}-ABI.eras-${i}-Eras`,
+          const theEra: Era | null = await GlobalCache.getAsync<Era>(`CALL${chainId}-${nftContract}-ABI.eras-${i}-Eras`,
             async () => {
               const era = await callMethod(chainId, nftContract, ABI.eras, [i]);
               return ({
@@ -98,7 +97,6 @@ export default function CollectionsPage() {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="my-collection">
-          {!loading && <div className="flex justify-center items-center h-full"><LoadingButton size="large" /></div>}
             <MyCollection nfts={myCollection} loading={loading}/>
           </TabsContent>
           <TabsContent value="full-collection">

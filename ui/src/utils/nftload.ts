@@ -1,6 +1,8 @@
 import { GlobalCache } from "web3-react-ui";
 import { ABI, NftMetadata } from "./conf";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 async function loadTokenUri(uri: string) {
   return GlobalCache.getAsync<any>(`URI${uri}`, async () => {
     const token = await fetch(uri);
@@ -48,7 +50,7 @@ export async function loadEraNfts(
   if (!eraLen) return newCollection;
   // page comes down from the end
   let from = eraLen - (page + 1) * pageSize;
-  let to = eraLen - page * pageSize;
+  const to = eraLen - page * pageSize;
   if ((to - from) < 1) return newCollection;
   if (from < 0) from = 0;
   console.log("Loading era", eraId, from, to, {page, pageSize, eraLen});

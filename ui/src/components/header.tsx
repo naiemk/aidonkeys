@@ -1,5 +1,4 @@
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
 import theme from "@/lib/theme"
 import Web3Connect from "./web3/web3-connect"
 

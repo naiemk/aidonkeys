@@ -106,6 +106,7 @@ contract EraNFT is
     function createEra(
         uint64 _eraId,
         string memory _title,
+        string memory _eraPrompt,
         uint256 _startPrice,
         uint256 _startTimestamp
     )
@@ -119,6 +120,7 @@ contract EraNFT is
             startTimestamp: _startTimestamp
         });
         eras.push(e);
+        IDtnMinter(minter).addEra(_eraId, _eraPrompt);
         emit EraCreated(_eraId, _title, _startPrice, _startTimestamp);
     }
 
@@ -171,6 +173,7 @@ contract EraNFT is
             purchaser: msg.sender,
             reward: Reward.NONE
         }));
+        IDtnMinter(minter).mintRequest(purchaseId, _eraId, _text);
         emit PurchaseRequested(purchaseId, msg.sender, _eraId, msg.value, Reward.NONE);
     }
 

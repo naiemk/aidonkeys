@@ -5,6 +5,9 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import "./RewardBase.sol";
+import "./IDtnMinter.sol";
+import "hardhat/console.sol";
+
 
 contract EraNFT is
     RewardBase,
@@ -17,6 +20,9 @@ contract EraNFT is
         string  title;
         uint256 startPrice;
         uint256 startTimestamp;
+        string kingPrompt;
+        string queenPrompt;
+        string knightPrompt;
     }
 
     struct Purchase {
@@ -34,7 +40,6 @@ contract EraNFT is
     Era[] public eras;
     mapping(uint64 => uint256[]) public _tokensByEra;
     uint64 public nextPurchaseId = 1;
-    Purchase[] public pendingPurchases;
     address public minter;
 
     event EraCreated(uint64 indexed eraId, string title, uint256 startPrice, uint256 startTimestamp);
@@ -66,15 +71,11 @@ contract EraNFT is
         override
     {
         uint64 newId = nextPurchaseId++;
-        pendingPurchases.push(Purchase({
-            id: newId,
-            text: "",
-            telegramId: "",
-            purchasePrice: 0,
-            eraId: eraId,
-            purchaser: user,
-            reward: r
-        }));
+        string memory prompt = r == Reward.KING ? eras[eraId].kingPrompt :
+            r == Reward.QUEEN ? eras[eraId].queenPrompt : eras[eraId].knightPrompt;
+        IDtnMinter(minter).mintRequestRaw{value: msg.value}(
+            newId, eraId, prompt, msg.sender, "", msg.value);
+
         emit PurchaseRequested(newId, user, eraId, 0, r);
     }
 
@@ -90,7 +91,7 @@ contract EraNFT is
         return _determineRewardEligibility(user, _getCurrentEraId(), balanceOf(user));
     }
 
-    function claimReward() external virtual {
+    function claimReward() external virtual payable {
         uint64 eraId = currentEraId();
         if (!_determineRewardEligibility(msg.sender, eraId, balanceOf(msg.sender))) {
             revert("No reward");
@@ -108,7 +109,10 @@ contract EraNFT is
         string memory _title,
         string memory _eraPrompt,
         uint256 _startPrice,
-        uint256 _startTimestamp
+        uint256 _startTimestamp,
+        string memory _kingPrompt,
+        string memory _queenPrompt,
+        string memory _knightPrompt
     )
         external
         onlyOwner
@@ -117,7 +121,10 @@ contract EraNFT is
             eraId: _eraId,
             title: _title,
             startPrice: _startPrice,
-            startTimestamp: _startTimestamp
+            startTimestamp: _startTimestamp,
+            kingPrompt: _kingPrompt,
+            queenPrompt: _queenPrompt,
+            knightPrompt: _knightPrompt
         });
         eras.push(e);
         IDtnMinter(minter).addEra(_eraId, _eraPrompt);
@@ -164,65 +171,27 @@ contract EraNFT is
         uint256 requiredPrice = currentPriceForEra(era);
         require(msg.value >= requiredPrice, "Not enough FRM sent");
         uint64 purchaseId = nextPurchaseId++;
-        pendingPurchases.push(Purchase({
-            id: purchaseId,
-            text: _text,
-            telegramId: _telegramId,
-            purchasePrice: msg.value,
-            eraId: _eraId,
-            purchaser: msg.sender,
-            reward: Reward.NONE
-        }));
-        IDtnMinter(minter).mintRequest(purchaseId, _eraId, _text);
+        IDtnMinter(minter).mintRequest{value: msg.value}(purchaseId, _eraId, _text, msg.sender, _telegramId, msg.value);
         emit PurchaseRequested(purchaseId, msg.sender, _eraId, msg.value, Reward.NONE);
     }
 
     function mintTokenForPurchase(
-        uint64 pruchaseIndex, // The index of the purchase in the pendingPurchases array
+        uint64 eraId,
+        uint64 purchaseId, // The index of the purchase in the pendingPurchases array
+        address purchaser,
         string memory _tokenURI
     )
         external
         onlyMinter
     {
-        Purchase memory p = pendingPurchases[pruchaseIndex];
-        require(p.id != 0, "Out of range");
-        _removePendingPurchase(pruchaseIndex);
+        console.log("Minting token for purchase", purchaseId);
         uint256 newTokenId = totalSupply() + 1;
-        _safeMint(p.purchaser, newTokenId);
+        _safeMint(purchaser, newTokenId);
         _setTokenURI(newTokenId, _tokenURI);
-        if (p.eraId != 0) {
-            _tokensByEra[p.eraId].push(newTokenId);
+        if (eraId != 0) {
+            _tokensByEra[eraId].push(newTokenId);
         }
-        emit TokenMinted(newTokenId, p.id, msg.sender);
-    }
-
-    function multipleMintTokenForPurchase(
-        uint64 fromIndex,
-        uint64 toIndexInclusive,
-        string[] calldata _tokenURIs
-    )
-        external
-        onlyMinter
-    {
-        require(toIndexInclusive - fromIndex + 1 == _tokenURIs.length, "Array length mismatch");
-        for (uint256 i = 0; i < _tokenURIs.length; i++) {
-            Purchase memory p = pendingPurchases[fromIndex + i];
-            require(p.id != 0, "Out of range");
-            uint256 newTokenId = totalSupply() + 1;
-            _safeMint(p.purchaser, newTokenId);
-            _setTokenURI(newTokenId, _tokenURIs[i]);
-            if (p.eraId != 0) {
-                _tokensByEra[p.eraId].push(newTokenId);
-            }
-            emit TokenMinted(newTokenId, p.id, msg.sender);
-        }
-        // Remove the purchases from pendingPurchases
-        for (uint i=fromIndex; i<=toIndexInclusive; i++) {
-            if (toIndexInclusive < pendingPurchases.length - 1) {
-                pendingPurchases[i] = pendingPurchases[pendingPurchases.length - 1];
-            }
-            pendingPurchases.pop();
-        }
+        emit TokenMinted(newTokenId, purchaseId, msg.sender);
     }
 
     function currentPriceForEraId(uint64 _eraId) external view returns (uint256) {
@@ -242,10 +211,6 @@ contract EraNFT is
         uint256 fraction = (leftover * 1e18) / dp;
         uint256 finalPrice = (doubledPrice * (1e18 + fraction)) / 1e18;
         return finalPrice;
-    }
-
-    function listPurchases() external view returns (Purchase[] memory result) {
-        result = pendingPurchases;
     }
 
     function getMintedTokensByEraLength(uint64 _eraId) external view returns (uint256) {
@@ -302,11 +267,6 @@ contract EraNFT is
 
     function _getEra(uint64 _eraId) internal view returns (Era memory) {
         return eras[_eraId];
-    }
-
-    function _removePendingPurchase(uint64 purchaseIndex) internal {
-        pendingPurchases[purchaseIndex] = pendingPurchases[pendingPurchases.length - 1];
-        pendingPurchases.pop();
     }
 
     function _increaseBalance(address account, uint128 value) internal virtual override (ERC721, ERC721Enumerable){

@@ -54,5 +54,5 @@ abstract contract RewardBase is Ownable {
         Reward r
     )
         internal
-        virtual;
+        virtual ;
 }

@@ -8,38 +8,37 @@ const accounts: any = process.env.TEST_ACCOUNT_PRIVATE_KEY ? [process.env.TEST_A
   process.env.TEST_ACCOUNT_PRIVATE_KEY ? { mnemonic: process.env.TEST_MNEMONICS } : panick("TEST_ACCOUNT_PRIVATE_KEY or TEST_MNEMONICS is not set");
 
 const config: HardhatUserConfig = {
-  solidity: {
-    version: "0.8.24",
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 200,
+  solidity: {compilers: [
+    {
+      version: "0.8.28",
+      settings: {
+        optimizer: {
+          enabled: true,
+          runs: 200,
+        },
       },
+    }, {
+      version: "0.8.24",
+      settings: {
+        optimizer: {
+          enabled: true,
+          runs: 200,
+        },
+      },
+    }]
     },
-  },
   networks: {
+    hardhat: {
+      allowBlocksWithSameTimestamp: true,
+    },
     local: {
       url: "http://localhost:8545",
       chainId: 1337,
     },
-    arbitrumOne: {
-      chainId: 42161,
-      url: process.env.ARBITRUM_RPC! || panick("ARBITRUM_RPC is not set. Set it in ./localConfig/.env"),
+    sepolia: {
+      chainId: 11155111,
+      url: "https://eth-sepolia.g.alchemy.com/public",
       accounts,
-    },
-    ferrum_mainnet: {
-      chainId: 26100,
-      url: "https://qpn.svcs.ferrumnetwork.io/",
-      accounts,
-      allowUnlimitedContractSize: true,
-      gas: 1000000, // this override is required for Substrate based evm chains
-    },
-    bsctestnet: {
-      chainId: 97,
-      url: process.env.BSC_TESTNET_RPC,
-      accounts,
-      // gas: 1000000,
-      // gasPrice: 20000000000,
     },
   },
     etherscan: {
@@ -55,16 +54,6 @@ const config: HardhatUserConfig = {
       ferrum_testnet: 'empty',
       ferrum_mainnet: 'empty',
     },
-      customChains: [
-    {
-      network: "ferrum_mainnet",
-      chainId: 26100,
-      urls: {
-        apiURL: "https://explorer.ferrumnetwork.io/api",
-        browserURL: "http://explorer.ferrumnetwork.io/"
-      }
-    }
-  ]
   },
   sourcify: {
     // Disabled by default

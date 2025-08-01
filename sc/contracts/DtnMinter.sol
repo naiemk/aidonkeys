@@ -18,6 +18,7 @@ contract DtnMinter is WithDtnAi, Ownable, IDtnMinter {
     struct NftRequest {
         uint64 eraId;
         uint64 purchaseId;
+        uint8 reward;
         address artist;
         string artistId;
         string text;
@@ -84,13 +85,13 @@ contract DtnMinter is WithDtnAi, Ownable, IDtnMinter {
     }
 
     function mintRequestRaw(
-        uint64 purchaseId, uint64 eraId, string memory text, address artist, string memory artistId, uint mintPrice
+        uint64 purchaseId, uint64 eraId, string memory text, address artist, string memory artistId, uint mintPrice, uint8 reward
         ) external override payable {
         require(msg.sender == nft, "Only nft can add era");
         string[] memory prompt_lines = new string[](1);
         prompt_lines[0] = text;
 
-        _mintRequest(purchaseId, eraId, prompt_lines, artist, artistId, mintPrice);
+        _mintRequest(purchaseId, eraId, prompt_lines, artist, artistId, mintPrice, reward);
     }
 
     function mintRequest(
@@ -102,11 +103,12 @@ contract DtnMinter is WithDtnAi, Ownable, IDtnMinter {
         prompt_lines[1] = text;
         prompt_lines[2] = lastLine;
 
-        _mintRequest(purchaseId, eraId, prompt_lines, artist, artistId, mintPrice);
+        _mintRequest(purchaseId, eraId, prompt_lines, artist, artistId, mintPrice, 0);
     }
 
     function _mintRequest(
-        uint64 purchaseId, uint64 eraId, string[] memory prompt_lines, address artist, string memory artistId, uint mintPrice
+        uint64 purchaseId, uint64 eraId, string[] memory prompt_lines, address artist, string memory artistId, uint mintPrice,
+        uint8 reward
         ) internal {
         require(msg.value >= callbackGas * 2, "Insufficient gas");
         if (sessionId == 0) {
@@ -139,7 +141,8 @@ contract DtnMinter is WithDtnAi, Ownable, IDtnMinter {
             artist: artist,
             artistId: artistId,
             text: prompt_lines.length > 1 ? prompt_lines[1] : prompt_lines[0],
-            mintPrice: mintPrice
+            mintPrice: mintPrice,
+            reward: reward
         });
 
         emit ArtRequested(purchaseId, requestId, prompt_lines.length > 1 ? prompt_lines[1] : prompt_lines[0]);
@@ -157,10 +160,11 @@ contract DtnMinter is WithDtnAi, Ownable, IDtnMinter {
         bytes memory extraParamsEncoded = abi.encode(
             cid, // {0}
             request.eraId, // {1:uint64}
-            request.artist, // {2:address}
-            request.artistId, // {3}
-            request.text, // {4}
-            request.mintPrice // {5:uint}
+            request.reward, // {2:uint8}
+            request.artist, // {3:address}
+            request.artistId, // {4}
+            request.text, // {5}
+            request.mintPrice // {6:uint}
         );
 
         bytes32 nftRequestId = ai.request{value: callbackGas}(

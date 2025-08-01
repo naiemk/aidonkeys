@@ -20,17 +20,21 @@ Important: Do not use markdown or any extra formatting. Output only raw JSON tex
 Replace:
 <CID>: {0}
 <ERA_ID>: {1:uint64}
-<ARTIST>: {2:address}
-<TELEGRAM>: {3}
-<TEXT>: {4}
-mintPrice: {5:uint}
+<REWARD>: {2:uint8}
+<ARTIST>: {3:address}
+<TELEGRAM>: {4}
+<TEXT>: {5}
+<PURCHASE_PRICE>: {6:uint}
 
 Return only the following JSON object with variables filled in and correctly escaped:
 
 {
     "platform": "AI Donkeys",
+    "eraId": "<ERA_ID>",
+    "reward": "<REWARD>",
     "artist": "<ARTIST>",
-    "telgramId": "<TELEGRAM>",
+    "telegramId": "<TELEGRAM>",
+    "purchasePrice": "<PURCHASE_PRICE>",
     "description": "<TEXT>",
     "is_static": true,
     "external_url": "https://gateway.pinata.cloud/ipfs/<CID>",

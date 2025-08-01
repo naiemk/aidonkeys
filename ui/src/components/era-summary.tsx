@@ -41,12 +41,12 @@ export function EraSummary() {
           <div className="flex flex-col sm:flex-row justify-between gap-4" style={{ color: theme.text.secondary }}>
             <div className="flex-1">
               <div className="text-sm mb-1">Current Price:</div>
-              <div className="text-3xl font-bold">{generalInfo.mintPriceDisplay} FRM</div>
+              <div className="text-3xl font-bold">{generalInfo.mintPriceDisplay} ETH</div>
             </div>
 
             <div className="flex-1 sm:text-right">
               <div className="text-sm mb-1">Era starting price:</div>
-              <div className="text-3xl font-bold">{generalInfo.currentEra.startPriceDisplay} FRM</div>
+              <div className="text-3xl font-bold">{generalInfo.currentEra.startPriceDisplay} ETH</div>
             </div>
           </div>
         </div>

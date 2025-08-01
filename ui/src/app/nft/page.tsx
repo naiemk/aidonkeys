@@ -52,7 +52,7 @@ export default function NFTItemPage() {
                 <strong>Minted by:</strong> {nft?.purchaseInfo?.telegramId || nft?.purchaseInfo?.purchaser}
               </p>
               <p style={{ color: theme.text.secondary }}>
-                <strong>Original Mint Price:</strong> {ethers.formatEther(nft?.purchaseInfo?.purchasePrice || '0')} FRM
+                <strong>Original Mint Price:</strong> {ethers.formatEther(nft?.purchaseInfo?.purchasePrice || '0')} ETH
               </p>
             </CardContent>
           </Card>

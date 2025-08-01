@@ -11,12 +11,35 @@ async function loadTokenUri(uri: string) {
   }) as unknown as NftMetadata;
 }
 
+/**
+ * Sample NFT JSON {
+    "platform": "AI Donkeys",
+    "eraId": "<ERA_ID>",
+    "reward": "<REWARD>",
+    "artist": "<ARTIST>",
+    "telegramId": "<TELEGRAM>",
+    "purchasePrice": "<PURCHASE_PRICE>",
+    "description": "<TEXT>",
+    "is_static": true,
+    "external_url": "https://gateway.pinata.cloud/ipfs/<CID>",
+    "image": "https://gateway.pinata.cloud/ipfs/<CID>"
+}
+ */
 export async function loadToken(chainId: string, nftContract: string, tokenId: string,
   callMethod: (chainId: string, contract: string, method: string, params: any[]) => Promise<any>): Promise<NftMetadata> {
   const tokenURI = await GlobalCache.getAsync<any>(`CALL${chainId}-${nftContract}-ABI.tokenURI-${tokenId}`,
     async () => (await callMethod(chainId, nftContract, ABI.tokenURI, [tokenId])).toString());
-  const token = await loadTokenUri(tokenURI);
-  return { ...token, id: Number(tokenId) };
+  const token = await loadTokenUri(tokenURI) as any;
+  const reward = token.reward || "0";
+  return { ...token, id: Number(tokenId), purchaseInfo: {
+    telegramId: token.telegramId || '',
+    id: Number(tokenId),
+    purchasePrice: token.purchasePrice || "0",
+    eraId: token.eraId || "0",
+    purchaser: token.artist || "",
+    reward: reward === "0" ? "NONE" : reward === "1" ? "KING" : reward === "2" ? "QUEEN" : "KNIGHT",
+    description: token.text || "",
+  } };
 }
 
 export async function loadMyNfts(

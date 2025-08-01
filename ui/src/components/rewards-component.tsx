@@ -14,7 +14,7 @@ export function RewardsComponent({ rewards }: { rewards: number }) {
           Your Rewards
         </h2>
         <p style={{ color: theme.text.secondary }} className="text-3xl">
-          {rewards} FRM
+          {rewards} ETH
         </p>
       </div>
     </DoubleBorder>

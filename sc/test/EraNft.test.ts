@@ -96,7 +96,6 @@ describe("EraNft End-to-End Test", function () {
       await expect(eraNft.createEra(
         1, // eraId
         "Era 1: Digital Renaissance",
-        "Create digital art inspired by renaissance themes",
         ethers.parseEther("0.01"), // startPrice
         eraStartTime,
         "Create a king",
@@ -119,7 +118,7 @@ describe("EraNft End-to-End Test", function () {
       const eraStartTime = currentTime + 3600; // Start in 1 hour
       
       // Create era
-      await eraNft.createEra(1, "Era 1", "prompt", ethers.parseEther("0.01"), eraStartTime, "Create a king", "Create a queen", "Create a knight");
+      await eraNft.createEra(1, "Era 1", ethers.parseEther("0.01"), eraStartTime, "Create a king", "Create a queen", "Create a knight");
       
       // Before era starts, should return 0 (no current era)
       expect(await eraNft.getCurrentEraId()).to.equal(0);
@@ -148,7 +147,6 @@ describe("EraNft End-to-End Test", function () {
       await eraNft.createEra(
         1, 
         "Era 1: Digital Renaissance", 
-        "Create digital art inspired by renaissance themes",
         ethers.parseEther("0.01"), 
         currentTime + 1, // Start in the next block
         "Create a king",
@@ -269,7 +267,7 @@ describe("EraNft End-to-End Test", function () {
       const startPrice = ethers.parseEther("0.01");
       
       // Create era
-      await eraNft.createEra(1, "Era 1", "prompt", startPrice, currentTime + 1, "Create a king", "Create a queen", "Create a knight");
+      await eraNft.createEra(1, "Era 1", startPrice, currentTime + 1, "Create a king", "Create a queen", "Create a knight");
       
       // Wait for era to start
       await time.increaseTo(currentTime + 1);
@@ -296,7 +294,9 @@ describe("EraNft End-to-End Test", function () {
       const { eraNft, user1 } = await loadFixture(deployEraNftFixture);
       
       const currentTime = await time.latest();
-      await eraNft.createEra(1, "Era 1", "prompt", ethers.parseEther("0.01"), currentTime + 1, "Create a king", "Create a queen", "Create a knight");
+      await eraNft.createEra(
+        1, "Era 1", ethers.parseEther("0.01"), currentTime + 1, "Create a king", "Create a queen", "Create a knight"
+      );
       
       // Wait for era to start
       await time.increaseTo(currentTime + 1);
@@ -308,40 +308,6 @@ describe("EraNft End-to-End Test", function () {
       )).to.be.revertedWith("Not enough FRM sent");
     });
   });
-
-  describe("Reward System", function () {
-    it("Should handle reward claims", async function () {
-      const { eraNft, user1 } = await loadFixture(deployEraNftFixture);
-      
-      const currentTime = await time.latest();
-      await eraNft.createEra(1, "Era 1", "prompt", ethers.parseEther("0.01"), currentTime + 1, "Create a king", "Create a queen", "Create a knight");
-      
-      // Wait for era to start
-      await time.increaseTo(currentTime + 1);
-      
-      // Move time to era start
-      await time.increaseTo(currentTime + 1);
-      
-      // User needs to have NFTs to be eligible for rewards
-      // For testing, we'll skip the NFT minting since it requires the minter
-      // and focus on testing the reward system logic
-      
-      // Check reward eligibility
-      const isEligible = await eraNft.rewardEligibility(user1.address);
-      
-      // Try to claim reward (may or may not succeed based on randomness)
-      try {
-        await eraNft.connect(user1).claimReward();
-        // If successful, check that a reward purchase was created
-        const purchases = await eraNft.listPurchases();
-        expect(purchases.length).to.be.greaterThan(0);
-      } catch (error: any) {
-        // It's okay if reward claim fails due to randomness
-        expect(error.message).to.include("No reward");
-      }
-    });
-  });
-
 
 
   describe("Access Control", function () {

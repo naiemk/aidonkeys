@@ -74,7 +74,7 @@ contract EraNFT is
         string memory prompt = r == Reward.KING ? eras[eraId].kingPrompt :
             r == Reward.QUEEN ? eras[eraId].queenPrompt : eras[eraId].knightPrompt;
         IDtnMinter(minter).mintRequestRaw{value: msg.value}(
-            newId, eraId, prompt, msg.sender, "", msg.value);
+            newId, eraId, prompt, msg.sender, "", msg.value, uint8(r));
 
         emit PurchaseRequested(newId, user, eraId, 0, r);
     }

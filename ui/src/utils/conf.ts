@@ -26,6 +26,7 @@ export interface NftMetadata {
       eraId: string;
       purchaser: string;
       reward: string;
+      description: string;
   }
 }
 

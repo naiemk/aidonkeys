@@ -68,7 +68,7 @@ export default function MintPage() {
               Current Mint Price
             </h2>
             <p style={{ color: theme.text.secondary }} className="text-3xl">
-              {generalInfo.mintPriceDisplay} FRM
+              {generalInfo.mintPriceDisplay} ETH
             </p>
           </div>
         </DoubleBorder>

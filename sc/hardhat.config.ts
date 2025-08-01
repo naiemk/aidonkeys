@@ -37,23 +37,14 @@ const config: HardhatUserConfig = {
     },
     sepolia: {
       chainId: 11155111,
+      // url: "https://ethereum-sepolia-rpc.publicnode.com",
       url: "https://eth-sepolia.g.alchemy.com/public",
       accounts,
     },
   },
     etherscan: {
     // Your API key for Etherscan
-    apiKey: {
-      // bscTestnet: getEnv("BSCSCAN_API_KEY"),
-      // polygonMumbai: getEnv("POLYGONSCAN_API_KEY"),
-      // btfd_ghostnet: getEnv("POLYGONSCAN_API_KEY"),
-      arbitrumOne: process.env.ARBISCAN_API_KEY!,
-      base: process.env.BASESCAN_API_KEY!,
-      bsc: process.env.BSCSCAN_API_KEY!,
-      bscTestnet: process.env.BSCSCAN_API_KEY!,
-      ferrum_testnet: 'empty',
-      ferrum_mainnet: 'empty',
-    },
+    apiKey: process.env.ETHERSCAN_API_KEY,
   },
   sourcify: {
     // Disabled by default

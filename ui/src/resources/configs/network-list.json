@@ -88,5 +88,15 @@
     "icon": "https://cryptologos.cc/logos/bnb-bnb-logo.png?v=040",
     "publicRpcUrl": "https://bsc-testnet-rpc.publicnode.com",
     "blockExplorerUrl": "https://testnet.bscscan.com"
+  },
+  {
+    "namespace": "evm",
+    "id": "11155111",
+    "rpcUrl": "https://eth-sepolia.g.alchemy.com/v2/YOUR_ALCHEMY_API_KEY",
+    "label": "Sepolia",
+    "token": "ETH",
+    "icon": "https://ethereum.org/favicon.ico",
+    "publicRpcUrl": "https://eth-sepolia.g.alchemy.com/public",
+    "blockExplorerUrl": "https://sepolia.etherscan.io"
   }
 ]

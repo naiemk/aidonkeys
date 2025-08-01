@@ -24,7 +24,6 @@ contract DtnMinter is WithDtnAi, Ownable, IDtnMinter {
         uint mintPrice;
     }
 
-    mapping(uint64 => string) public eraPrompts;
     mapping(bytes32 => NftRequest) public artRequests;
     mapping(bytes32 => bytes32) public nftRequests; // Point to art request
     uint public sessionId;
@@ -166,7 +165,7 @@ contract DtnMinter is WithDtnAi, Ownable, IDtnMinter {
 
         bytes32 nftRequestId = ai.request{value: callbackGas}(
             sessionId,
-            keccak256(abi.encodePacked(imageModel)), // the model ID
+            keccak256(abi.encodePacked(textModel)), // the model ID
             DtnDefaults.defaultCustomNodesValidatedAny(DtnDefaults.singleArray(keccak256(abi.encodePacked(server)))),
             IDtnAi.DtnRequest({
                 call: abi.encode(prompt_lines),
@@ -217,11 +216,6 @@ contract DtnMinter is WithDtnAi, Ownable, IDtnMinter {
         (, string memory message, ) = ai.fetchResponse(requestId);
         uint64 purchaseId = artRequests[nftRequests[requestId]].purchaseId;
         emit NftError(purchaseId, requestId, nftRequests[requestId], message);
-    }
-
-    function addEra(uint64 eraId, string memory _eraPrompts) external override {
-        require(msg.sender == nft, "Only nft can add era");
-        eraPrompts[eraId] = _eraPrompts;
     }
 
     function restartSession() public {

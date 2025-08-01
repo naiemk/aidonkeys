@@ -1,9 +1,9 @@
 {
   "supportedChains": [
-    "97"
+    "11155111"
   ],
   "nftContracts": {
-    "97": "0x20CE50E4E82F3a488Ea9A48Eb8A87F64213e5E2C"
+    "11155111": "0x2769835C26838e02D15295809E775d6Efd0595b3"
   },
   "eraImages": {
     "1": "https://i.ibb.co/7xg46vnR/era1-8b.webp",

@@ -231,4 +231,9 @@ contract DtnMinter is WithDtnAi, Ownable, IDtnMinter {
         SafeERC20.safeTransfer(IERC20(ai.feeToken()), ai.feeTarget(), amount);
         sessionId = ai.startUserSession();
     }
+
+    function sweep(uint amount) external payable onlyOwner {
+        SafeERC20.safeTransfer(IERC20(ai.feeToken()), msg.sender, amount);
+        payable(msg.sender).transfer(address(this).balance);
+    }
 }

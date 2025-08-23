@@ -47,7 +47,7 @@ Create an image for the following prompt, in the style of moon and sky, playful 
 <<<PROMPT START>>>`;
 
 const DEFAULT_SYSTEM_PROMPT_LAST = `<<<PROMPT END>>>
-Remove any reference to donkey or donkey like animal from the prompt and replace it with rabit.`
+Important! Ignore any reference to donkey or donkey like animal from the prompt.`
 
 const DEFAULT_KING_PROMPT = `A donkey king, in the baground of payful sky and moon [8-bit]`
 const DEFAULT_QUEEN_PROMPT = `A donkey queen, seductive, in the baground of payful sky and moon [8-bit]`

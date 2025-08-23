@@ -98,5 +98,15 @@
     "icon": "https://ethereum.org/favicon.ico",
     "publicRpcUrl": "https://eth-sepolia.g.alchemy.com/public",
     "blockExplorerUrl": "https://sepolia.etherscan.io"
+  },
+  {
+    "namespace": "evm",
+    "id": "8453",
+    "rpcUrl": "https://base.llamarpc.com",
+    "label": "Base",
+    "token": "ETH",
+    "icon": "https://base.org/favicon.ico",
+    "publicRpcUrl": "https://base.llamarpc.com",
+    "blockExplorerUrl": "https://basescan.org"
   }
 ]

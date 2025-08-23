@@ -41,6 +41,11 @@ const config: HardhatUserConfig = {
       url: "https://eth-sepolia.g.alchemy.com/public",
       accounts,
     },
+    base: {
+      chainId: 8453,
+      url: process.env.BASE_RPC_URL,
+      accounts,
+    },
   },
     etherscan: {
     // Your API key for Etherscan

@@ -323,7 +323,7 @@ describe("EraNft End-to-End Test", function () {
       const { eraNft, user1 } = await loadFixture(deployEraNftFixture);
       
       // Test that non-owner cannot call owner functions
-      await expect(eraNft.connect(user1).createEra(1, "Test", "prompt", 1000, 1000, "Create a king", "Create a queen", "Create a knight"))
+      await expect(eraNft.connect(user1).createEra(1, "Test", :WebGLQuery1000, 1000, "Create a king", "Create a queen", "Create a knight"))
         .to.be.reverted; // Just check that it reverts, don't check specific error message
       
       await expect(eraNft.connect(user1).setMinter(user1.address))

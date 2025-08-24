@@ -35,7 +35,7 @@ contract DtnMinter is WithDtnAi, Ownable, IDtnMinter {
     string public gatewayBase = "https://ipfs.io/ipfs/";
 
     uint public callbackGas = 100_000_000_000; // 100 GWEI for gas
-    string public imageModel = "model.system.openai-gpt-iamge-1";
+    string public imageModel = "model.system.openai-gpt-image-1";
     string public textModel = "model.system.openai-gpt-5-mini";
     string public server = "node.author1.node1";
     uint public feePerByte = 1; // USDC has 6 digits

@@ -8,7 +8,7 @@ Try running some of the following tasks:
 
 **BASE**
 
-DeployEraNft#newDtnMinter - 0x6bcE0AE911A97e4fB48A2ac689d61c6D3B2E0e7C
+DeployEraNft#newDtnMinter - 0xeF317f575D20Da1aC82f69F6A5C85266F0D48EAd
 DeployEraNft#newEraNFT - 0x45024485C1A4E9fAe18cE02Be88c37E15ee0Bbd5
 
 ```shell

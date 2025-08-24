@@ -118,7 +118,7 @@ export function useGeneralInfo(): GeneralInfo {
       try {
         const totalSupply = await callMethod(chainId, nftContract, ABI.totalSupply, []);
         newInfo.totalSupply = totalSupply;
-        const currentEraId = await callMethod(chainId, nftContract, ABI.getCurrentEraId, []);
+        const currentEraId = (await callMethod(chainId, nftContract, ABI.getCurrentEraId, [])).toString();
         newInfo.currentEra.id = currentEraId;
         const currentEra = await callMethod(chainId, nftContract, ABI.eras, [currentEraId]);
         if (!currentEra) return;
@@ -133,9 +133,11 @@ export function useGeneralInfo(): GeneralInfo {
         const balance = await callMethod(chainId, nftContract, ABI.balanceOf, [address]);
         newInfo.balance = balance;
 
+        console.log('Current era id', currentEraId);
         const mintPrice = await callMethod(chainId, nftContract, ABI.currentPriceForEraId, [currentEraId]);
+        console.log('Mint price', mintPrice);
         // Round up to the 4 decimal place
-        const mintPriceRoundUp = ((mintPrice / 10n**14n) + 1n) * 10n**14n;
+        const mintPriceRoundUp = (((mintPrice || 0n) / 10n**14n) + 1n) * 10n**14n;
         newInfo.mintPrice = mintPriceRoundUp.toString();
         newInfo.mintPriceDisplay = ethers.formatEther(mintPriceRoundUp);
 

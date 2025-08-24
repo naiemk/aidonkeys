@@ -34,17 +34,19 @@ contract DtnMinter is WithDtnAi, Ownable, IDtnMinter {
     string public nftCreationPrompt;
     string public gatewayBase = "https://ipfs.io/ipfs/";
 
-    uint public callbackGas;
-    string public imageModel = "model.system.openai-gpt-o3-simpleimage";
-    string public textModel = "model.system.openai-gpt-o3-simpletext";
-    string public server = "node.tester.node1";
-    uint public feePerByte = 1 ** 10**(18 - 6);
+    uint public callbackGas = 100_000_000_000; // 100 GWEI for gas
+    string public imageModel = "model.system.openai-gpt-iamge-1";
+    string public textModel = "model.system.openai-gpt-5-mini";
+    string public server = "node.author1.node1";
+    uint public feePerByte = 1; // USDC has 6 digits
+    uint public maxFeePreRequest = 200_000; // 20c
 
     event ArtRequested(uint64 indexed purchaseId, bytes32 artRequestId, string text);
     event NftRequested(uint64 indexed purchaseId, bytes32 nftRequestId, bytes32 artRequestId, string cid);
     event NftCreated(uint64 indexed purchaseId, bytes32 nftRequestId, string cid);
     event ArtError(uint64 indexed purchaseId, bytes32 requestId, string message);
     event NftError(uint64 indexed purchaseId, bytes32 requestId, bytes32 artRequestId, string message);
+    event Refunded(uint64 indexed purchaseId, bytes32 artRequestId, address indexed artist, uint256 amount);
 
     function setDtn(address _dtnRouter) public onlyOwner {
         WithDtnAi.setAi(_dtnRouter);
@@ -59,7 +61,12 @@ contract DtnMinter is WithDtnAi, Ownable, IDtnMinter {
     }
 
     function config(
-        uint _callbackGas, string memory _imageModel, string memory _textModel, string memory _server, uint _feePerByte
+        uint _callbackGas,
+        string memory _imageModel,
+        string memory _textModel,
+        string memory _server,
+        uint _feePerByte,
+        uint _maxFeePreRequest
         ) external onlyOwner {
         if (_callbackGas != 0) {
             callbackGas = _callbackGas;
@@ -76,6 +83,9 @@ contract DtnMinter is WithDtnAi, Ownable, IDtnMinter {
         if (_feePerByte != 0) {
             feePerByte = _feePerByte;
         }
+        if (_maxFeePreRequest != 0) {
+            maxFeePreRequest = _maxFeePreRequest;
+        }
     }
 
     function setSystmPrompts(string memory _firstLine, string memory _lastLine, string memory _nftCreationPrompt) external onlyOwner {
@@ -87,7 +97,7 @@ contract DtnMinter is WithDtnAi, Ownable, IDtnMinter {
     function mintRequestRaw(
         uint64 purchaseId, uint64 eraId, string memory text, address artist, string memory artistId, uint mintPrice, uint8 reward
         ) external override payable {
-        require(msg.sender == nft, "Only nft can add era");
+        require(msg.sender == nft, "Caller not nft");
         string[] memory prompt_lines = new string[](1);
         prompt_lines[0] = text;
 
@@ -97,7 +107,7 @@ contract DtnMinter is WithDtnAi, Ownable, IDtnMinter {
     function mintRequest(
         uint64 purchaseId, uint64 eraId, string memory text, address artist, string memory artistId, uint mintPrice
         ) external override payable {
-        require(msg.sender == nft, "Only nft can add era");
+        require(msg.sender == nft, "Caller not nft");
         string[] memory prompt_lines = new string[](3);
         prompt_lines[0] = firstLine;
         prompt_lines[1] = text;
@@ -125,7 +135,7 @@ contract DtnMinter is WithDtnAi, Ownable, IDtnMinter {
                 calltype: IDtnAi.CallType.IPFS, 
                 feePerByteReq: feePerByte,
                 feePerByteRes: feePerByte,
-                totalFeePerRes: feePerByte * 1024 * 1024 * 10
+                totalFeePerRes: maxFeePreRequest
             }),
             IDtnAi.CallBack(
                 this.artCreatedCallback.selector,
@@ -175,9 +185,9 @@ contract DtnMinter is WithDtnAi, Ownable, IDtnMinter {
                 call: abi.encode(prompt_lines),
                 extraParams: extraParamsEncoded,
                 calltype: IDtnAi.CallType.IPFS, 
-                feePerByteReq: feePerByte,
-                feePerByteRes: feePerByte,
-                totalFeePerRes: feePerByte * 1000000
+                feePerByteReq: feePerByte * 10, // This is a more expensive model
+                feePerByteRes: feePerByte * 10,
+                totalFeePerRes: maxFeePreRequest
             }),
             IDtnAi.CallBack(
                 this.nftCreatedCallback.selector,
@@ -212,14 +222,28 @@ contract DtnMinter is WithDtnAi, Ownable, IDtnMinter {
         (, string memory message, ) = ai.fetchResponse(requestId);
         uint64 purchaseId = artRequests[requestId].purchaseId;
         emit ArtError(purchaseId, requestId, message);
+        refund(purchaseId, requestId);
     }
 
     function aiErrorNft(bytes32 requestId) external onlyDtn {
         // Handle the error
         // Reject the NFT creation request and refund the payment
         (, string memory message, ) = ai.fetchResponse(requestId);
-        uint64 purchaseId = artRequests[nftRequests[requestId]].purchaseId;
+        bytes32 artRequested = nftRequests[requestId];
+        uint64 purchaseId = artRequests[artRequested].purchaseId;
         emit NftError(purchaseId, requestId, nftRequests[requestId], message);
+        refund(purchaseId, artRequested);
+    }
+
+    function refund(uint64 purchaseId, bytes32 artRequested) internal {
+        address artist = artRequests[artRequested].artist;
+        uint256 amount = artRequests[artRequested].mintPrice;
+        if (address(this).balance > amount) {
+            payable(artist).transfer(amount);
+            emit Refunded(purchaseId, artRequested, artist, amount);
+        } else {
+            emit Refunded(purchaseId, artRequested, artist, 0);
+        }
     }
 
     function restartSession() public {
@@ -230,6 +254,10 @@ contract DtnMinter is WithDtnAi, Ownable, IDtnMinter {
         require(amount > 0, "Not enough tokens to start a session");
         SafeERC20.safeTransfer(IERC20(ai.feeToken()), ai.feeTarget(), amount);
         sessionId = ai.startUserSession();
+    }
+
+    function sweepEth(address payable to) external onlyOwner {
+        to.transfer(address(this).balance);
     }
 
     function sweep(uint amount) external payable onlyOwner {

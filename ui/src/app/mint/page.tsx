@@ -23,7 +23,7 @@ export default function MintPage() {
   const [transactionId, setTransactionId] = useState("");
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
   const { nftContract } = useConfig(chainId);
-  const { execute } = useContracts();
+  const { execute, error: contractError } = useContracts();
   const generalInfo = useGeneralInfo();
 
   const mint = async () => {
@@ -33,9 +33,11 @@ export default function MintPage() {
     }
     setPending(true);
     try {
+      const aiGas = 200_000_000_000n // 200 GWEI
       const tx = await execute(nftContract, ABI.purchaseMint, [description, tgId], {
         wait: true,
-        value: BigInt(generalInfo.mintPrice) });
+        value: BigInt(generalInfo.mintPrice) + aiGas,
+        });
       if (tx) {
         setDescription('');
         console.log('tx', tx)
@@ -100,7 +102,7 @@ export default function MintPage() {
                 </div>
                 <Textarea
                   value={description}
-                  onChange={(e) => setDescription(e.target.value.slice(0, 111))}
+                  onChange={(e) => {setError(''); setDescription(e.target.value.slice(0, 111))}}
                   placeholder="Describe your NFT design here..."
                   className="mb-2"
                   disabled={pending}
@@ -146,7 +148,7 @@ export default function MintPage() {
                 />
               </div>
 
-              {error && (
+              {(error || contractError) && (
                 <div
                   className="p-2 text-center"
                   style={{
@@ -155,7 +157,7 @@ export default function MintPage() {
                     border: `2px solid ${theme.border.default}`,
                   }}
                 >
-                  {error}
+                  {error || contractError}
                 </div>
               )}
 

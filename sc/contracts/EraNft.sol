@@ -167,7 +167,7 @@ contract EraNFT is
         uint64 _eraId = currentEraId();
         Era memory era = _getEra(_eraId);
         uint256 requiredPrice = currentPriceForEra(era);
-        require(msg.value >= requiredPrice, "Not enough FRM sent");
+        require(msg.value >= requiredPrice, "Not enough ETH sent");
         uint64 purchaseId = nextPurchaseId++;
         IDtnMinter(minter).mintRequest{value: msg.value}(purchaseId, _eraId, _text, msg.sender, _telegramId, msg.value);
         emit PurchaseRequested(purchaseId, msg.sender, _eraId, msg.value, Reward.NONE);

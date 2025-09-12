@@ -137,7 +137,8 @@ export function useGeneralInfo(): GeneralInfo {
         const mintPrice = await callMethod(chainId, nftContract, ABI.currentPriceForEraId, [currentEraId]);
         console.log('Mint price', mintPrice);
         // Round up to the 4 decimal place
-        const mintPriceRoundUp = (((mintPrice || 0n) / 10n**14n) + 1n) * 10n**14n;
+        // const mintPriceRoundUp = (((mintPrice || 0n) / 10n**14n) + 1n) * 10n**14n;
+        const mintPriceRoundUp = mintPrice; // DO NOT ROUND UP for now
         newInfo.mintPrice = mintPriceRoundUp.toString();
         newInfo.mintPriceDisplay = ethers.formatEther(mintPriceRoundUp);
 

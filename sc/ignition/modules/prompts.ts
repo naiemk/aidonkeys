@@ -63,3 +63,4 @@ Prompts[1] = new EraPrompt(
     DEFAULT_SYSTEM_PROMPT_LAST,
     NFT_CREATION_PROMPT,
 )
+Prompts[2] = Prompts[1] // Duplicate the ERA

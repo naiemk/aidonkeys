@@ -2,38 +2,43 @@
 import { Header } from "@/components/header"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { EraCollection } from "@/components/era-collection"
-import { MyCollection } from "@/components/my-collection"
+import { NftPlaceholder } from "@/components/nft-placeholder"
+import { DoubleBorder } from "@/components/double-border"
 import theme from "@/lib/theme"
 import { useState, useEffect } from "react"
-import { ABI, Era, NftMetadata, useConfig, useGeneralInfo } from "@/utils/conf"
+import { ABI, Era, useConfig, useGeneralInfo } from "@/utils/conf"
 import { GlobalCache, useConnectWalletSimple, useContracts } from "web3-react-ui"
-import { loadMyNfts } from "@/utils/nftload"
 
 export default function CollectionsPage() {
   const [value, setValue] = useState("my-collection");
   const [eras, setEras] = useState<Era[]>([]);
   const { chainId, address } = useConnectWalletSimple();
   const { nftContract } = useConfig(chainId);
-  const [myCollection, setMyCollection] = useState<NftMetadata[]>([]);
+  const [myTokenIds, setMyTokenIds] = useState<string[]>([]);
   const { callMethod } = useContracts();
   const generalInfo = useGeneralInfo();
-  const [loading, setLoading] = useState(false);
+  const [loadingTokenIds, setLoadingTokenIds] = useState(false);
 
   useEffect(() => {
-    // Load my collection
-    const loadCollection = async () => {
+    // Load my collection token IDs only
+    const loadTokenIds = async () => {
       if (chainId && address && generalInfo.balance && nftContract) {
-        setLoading(true);
+        setLoadingTokenIds(true);
         try {
-          const { nfts, } = await loadMyNfts(chainId, nftContract, address, generalInfo.balance, callMethod);
-          console.log('nfts loaded', nfts);
-          setMyCollection(nfts);
+          const tokenIds: string[] = [];
+          for(let i = 0; i < generalInfo.balance; i++) {
+            const tokenId = await GlobalCache.getAsync<string>(`CALL${chainId}-${nftContract}-ABI.tokenOfOwnerByIndex-${address}-${i}`,
+              async () => (await callMethod(chainId, nftContract, ABI.tokenOfOwnerByIndex, [address, i])).toString());
+            tokenIds.push(tokenId);
+          }
+          console.log('token IDs loaded', tokenIds);
+          setMyTokenIds(tokenIds);
         } finally {
-          setLoading(false);
+          setLoadingTokenIds(false);
         }
       }
     };
-    loadCollection();
+    loadTokenIds();
   }, [chainId, address, callMethod, generalInfo.balance, nftContract]);
 
   useEffect(() => {
@@ -97,7 +102,49 @@ export default function CollectionsPage() {
             </TabsTrigger>
           </TabsList>
           <TabsContent value="my-collection">
-            <MyCollection nfts={myCollection} loading={loading}/>
+            <DoubleBorder>
+              <div style={{ backgroundColor: theme.card.background }} className="p-4">
+                <h2 style={{ color: theme.text.primary }} className="text-2xl font-bold mb-4">
+                  My Collection
+                </h2>
+                {loadingTokenIds && (
+                  <div className="flex justify-center items-center h-32">
+                    <div className="text-center">
+                      <div className="text-lg mb-2">Loading your collection...</div>
+                      <div className="text-sm" style={{ color: theme.text.secondary }}>
+                        Fetching token IDs...
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {!loadingTokenIds && myTokenIds.length === 0 && (
+                  <div className="flex justify-center items-center h-32">
+                    <div className="text-center">
+                      <div className="text-lg mb-2">No NFTs found</div>
+                      <div className="text-sm" style={{ color: theme.text.secondary }}>
+                        You don&apos;t have any NFTs in your collection yet.
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {!loadingTokenIds && myTokenIds.length > 0 && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    {myTokenIds.map((tokenId, index) => (
+                      <NftPlaceholder
+                        key={tokenId}
+                        tokenId={tokenId}
+                        chainId={chainId!}
+                        nftContract={nftContract}
+                        address={address!}
+                        callMethod={callMethod}
+                        collectionSize={myTokenIds.length}
+                        index={index}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </DoubleBorder>
           </TabsContent>
           <TabsContent value="full-collection">
             <div className="space-y-6">

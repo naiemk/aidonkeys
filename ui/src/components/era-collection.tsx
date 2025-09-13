@@ -46,6 +46,7 @@ export function EraCollection({ eraId, era }: EraCollectionProps) {
   useEffect(() => {
     setCollection([]);
     loadEra();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId, callMethod, nftContract]);
 
   return (

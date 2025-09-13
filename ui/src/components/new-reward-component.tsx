@@ -26,6 +26,7 @@ export function NewRewardComponent() {
 
   useEffect(() => {
     loadEligibilit();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId, address, callMethod, nftContract]);
 
   const claimReward = async () => {

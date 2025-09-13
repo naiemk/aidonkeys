@@ -29,6 +29,7 @@ export async function loadToken(chainId: string, nftContract: string, tokenId: s
   callMethod: (chainId: string, contract: string, method: string, params: any[]) => Promise<any>): Promise<NftMetadata> {
   const tokenURI = await GlobalCache.getAsync<any>(`CALL${chainId}-${nftContract}-ABI.tokenURI-${tokenId}`,
     async () => (await callMethod(chainId, nftContract, ABI.tokenURI, [tokenId])).toString());
+    try {
   const token = await loadTokenUri(tokenURI) as any;
   const reward = token.reward || "0";
   return { ...token, id: Number(tokenId), purchaseInfo: {
@@ -38,8 +39,12 @@ export async function loadToken(chainId: string, nftContract: string, tokenId: s
     eraId: token.eraId || "0",
     purchaser: token.artist || "",
     reward: reward === "0" ? "NONE" : reward === "1" ? "KING" : reward === "2" ? "QUEEN" : "KNIGHT",
-    description: token.text || "",
-  } };
+      description: token.text || "",
+    } };
+  } catch (error) {
+    console.error('Failed to load token', error);
+    return { id: Number(tokenId), name: `NFT #${tokenId}`, description: "", image: "/placeholder.svg", external_url: "", purchaseInfo: { id: Number(tokenId), telegramId: "", purchasePrice: "0", eraId: "0", purchaser: "", reward: "NONE", description: "" } };
+  }
 }
 
 export async function loadMyNfts(

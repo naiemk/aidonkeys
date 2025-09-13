@@ -5,15 +5,15 @@ import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { LoadingButton } from "./ui/loading-button"
 import theme from "@/lib/theme"
-import { NftMetadata, ABI } from "@/utils/conf"
-import { GlobalCache } from "web3-react-ui"
+import { NftMetadata } from "@/utils/conf"
+import { loadToken } from "@/utils/nftload"
 
 interface NftPlaceholderProps {
   tokenId: string
   chainId: string
   nftContract: string
   address: string
-  callMethod: (chainId: string, contract: string, method: string, params: any[]) => Promise<any>
+  callMethod: (chainId: string, contract: string, method: string, params: unknown[]) => Promise<unknown>
   collectionSize: number
   index: number
 }
@@ -24,14 +24,13 @@ export function NftPlaceholder({
   tokenId, 
   chainId, 
   nftContract, 
-  address, 
   callMethod, 
   collectionSize,
   index 
 }: NftPlaceholderProps) {
   const [nft, setNft] = useState<NftMetadata | null>(null)
   const [state, setState] = useState<NftState>('loading')
-  const [error, setError] = useState<string>('')
+  const [, setError] = useState<string>('')
 
   useEffect(() => {
     const loadNft = async () => {
@@ -50,41 +49,7 @@ export function NftPlaceholder({
         
         await new Promise(resolve => setTimeout(resolve, totalDelay + staggeredDelay))
 
-        // Load the NFT data
-        const tokenURI = await GlobalCache.getAsync<any>(
-          `CALL${chainId}-${nftContract}-ABI.tokenURI-${tokenId}`,
-          async () => (await callMethod(chainId, nftContract, ABI.tokenURI, [tokenId])).toString()
-        )
-
-        const tokenData = await GlobalCache.getAsync<any>(
-          `URI${tokenURI}`, 
-          async () => {
-            const response = await fetch(tokenURI)
-            if (!response.ok) {
-              throw new Error(`Failed to fetch token data: ${response.status}`)
-            }
-            return await response.json()
-          }
-        )
-
-        const reward = tokenData.reward || "0"
-        const nftData: NftMetadata = {
-          id: Number(tokenId),
-          name: tokenData.name || `NFT #${tokenId}`,
-          description: tokenData.description || '',
-          image: tokenData.image || '/placeholder.svg',
-          external_url: tokenData.external_url || '',
-          purchaseInfo: {
-            telegramId: tokenData.telegramId || '',
-            id: Number(tokenId),
-            purchasePrice: tokenData.purchasePrice || "0",
-            eraId: tokenData.eraId || "0",
-            purchaser: tokenData.artist || "",
-            reward: reward === "0" ? "NONE" : reward === "1" ? "KING" : reward === "2" ? "QUEEN" : "KNIGHT",
-            description: tokenData.text || "",
-          }
-        }
-
+        const nftData = await loadToken(chainId, nftContract, tokenId, callMethod);
         setNft(nftData)
         setState('loaded')
       } catch (err) {
@@ -138,25 +103,25 @@ export function NftPlaceholder({
     )
   }
 
-  if (!nft) return null
+  // if (!nft) return null
 
   return (
-    <Link href={`/nft?id=${nft.id}`}>
+    <Link href={`/nft?id=${nft?.id}`}>
       <Card style={{ backgroundColor: theme.background.secondary, borderRadius: 0, cursor: "pointer" }}>
         <CardContent className="p-2">
           <div className="relative w-full aspect-square mb-2">
             <Image
-              src={nft.external_url || nft.image || "/placeholder.svg"}
-              alt={`NFT ${nft.name}`}
+              src={nft?.external_url || nft?.image || "/placeholder.svg"}
+              alt={`NFT ${nft?.name}`}
               fill
               className="object-cover"
             />
           </div>
           <div className="text-xs truncate" style={{ color: theme.text.secondary }}>
-            Minted by {nft.purchaseInfo.telegramId?.toString() || 'unnamed'}
+            Minted by {nft?.purchaseInfo.telegramId?.toString() || 'unnamed'}
           </div>
           <div className="text-xs truncate" style={{ color: theme.text.primary }}>
-            {nft.name}
+            {nft?.name}
           </div>
         </CardContent>
       </Card>

@@ -13,6 +13,27 @@ interface AppConfig {
   }
 }
 
+/**
+    "platform": "AI Donkeys",
+    "eraId": "2",
+    "reward": "0",
+    "artist": "0xa3B01BfeE8DbDe47daC64e57F1Bf086825a8B535",
+    "telegramId": "naiemk",
+    "purchasePrice": "325600000000",
+    "description": "A horse jumping over bitcoins in competition",
+    "is_static": true,
+    "external_url": "https://gateway.pinata.cloud/ipfs/bafybeibjexiffs4vcqzzjr3lm6tfrlkrur35j2boa6rxiji5pztpajtmlq",
+    "image": "https://gateway.pinata.cloud/ipfs/bafybeibjexiffs4vcqzzjr3lm6tfrlkrur35j2boa6rxiji5pztpajtmlq"
+ */
+export interface RawNftMetadata {
+  platform: string;
+  eraId: string;
+  reward: string;
+  artist: string;
+  telegramId: string;
+}
+
+
 export interface NftMetadata {
   id: number;
   name: string;

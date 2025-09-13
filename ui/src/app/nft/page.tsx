@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { loadToken } from "@/utils/nftload";
 import { useSearchParams } from "next/navigation"
 import { ethers } from "ethers";
+import Image from "next/image";
 export default function NFTItemPage() {
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
@@ -43,10 +44,12 @@ export default function NFTItemPage() {
               <CardTitle style={{ color: theme.text.primary }}>NFT #{nft?.id}</CardTitle>
             </CardHeader>
             <CardContent>
-              <img
+              <Image
                 src={nft?.external_url || "/placeholder.svg"}
                 alt={`NFT #${nft?.id}`}
                 className="w-full object-cover mb-4"
+                width={400}
+                height={400}
               />
               <p style={{ color: theme.text.secondary }}>
                 <strong>Minted by:</strong> {nft?.purchaseInfo?.telegramId || nft?.purchaseInfo?.purchaser}

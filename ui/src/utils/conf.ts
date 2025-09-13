@@ -174,6 +174,7 @@ export function useGeneralInfo(): GeneralInfo {
       }
     };
     init();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chainId, address, validChain, nftContract, callMethod]);
 
   return generalInfo;
